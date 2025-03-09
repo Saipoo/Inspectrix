@@ -1,6 +1,7 @@
 import axios from 'axios';
 import * as cheerio from 'cheerio';
 import { SearchResult } from '../data/searchData';
+import { format } from 'date-fns';
 
 // Function to generate a unique ID
 const generateId = () => Math.random().toString(36).substr(2, 9);
@@ -17,10 +18,35 @@ const extractPrice = (text: string): string | undefined => {
   return match ? match[0] : undefined;
 };
 
-// Function to scrape Amazon product data
+// Function to generate AI analysis based on product data
+const generateAIAnalysis = (title: string, price: string | undefined, rating: number, reviews: number): string => {
+  const pricePoint = price ? parseFloat(price.replace(/[^0-9.-]+/g, '')) : 0;
+  let analysis = '';
+
+  if (rating >= 4.5 && reviews > 1000) {
+    analysis += 'Highly recommended based on exceptional user feedback. ';
+  }
+
+  if (pricePoint > 500) {
+    analysis += 'Premium product with high-end features. ';
+  } else if (pricePoint > 100) {
+    analysis += 'Good value for money. ';
+  } else {
+    analysis += 'Budget-friendly option. ';
+  }
+
+  return analysis;
+};
+
+// Enhanced Amazon scraper with more detailed information
 export async function scrapeAmazon(searchQuery: string): Promise<SearchResult[]> {
   try {
-    const response = await axios.get(`https://www.amazon.com/s?k=${encodeURIComponent(searchQuery)}`);
+    const response = await axios.get(`https://www.amazon.com/s?k=${encodeURIComponent(searchQuery)}`, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+      }
+    });
+    
     const $ = cheerio.load(response.data);
     const results: SearchResult[] = [];
 
@@ -30,9 +56,10 @@ export async function scrapeAmazon(searchQuery: string): Promise<SearchResult[]>
       const rating = extractRating($(element).find('.a-icon-star-small').text().trim());
       const reviews = parseInt($(element).find('.a-size-small .a-size-base').text().trim(), 10) || 0;
       const imageUrl = $(element).find('img').attr('src');
+      const productUrl = 'https://amazon.com' + $(element).find('a.a-link-normal').attr('href');
 
       if (title && price) {
-        results.push({
+        const result: SearchResult = {
           id: generateId(),
           title,
           description: title,
@@ -41,10 +68,14 @@ export async function scrapeAmazon(searchQuery: string): Promise<SearchResult[]>
           reviews: reviews || 100,
           price: `$${price}`,
           website: 'Amazon',
-          websiteUrl: 'https://amazon.com',
+          websiteUrl: productUrl,
           imageUrl: imageUrl || 'https://images.unsplash.com/photo-1557821552-17105176677c',
-          isBestChoice: false
-        });
+          bestPaymentMethod: 'Amazon Prime Card - 5% cashback',
+          aiAnalysis: generateAIAnalysis(title, `$${price}`, rating || 4.0, reviews || 100),
+          lastUpdated: format(new Date(), 'PPP')
+        };
+
+        results.push(result);
       }
     });
 
@@ -55,10 +86,15 @@ export async function scrapeAmazon(searchQuery: string): Promise<SearchResult[]>
   }
 }
 
-// Function to scrape Best Buy product data
+// Enhanced Best Buy scraper
 export async function scrapeBestBuy(searchQuery: string): Promise<SearchResult[]> {
   try {
-    const response = await axios.get(`https://www.bestbuy.com/site/searchpage.jsp?st=${encodeURIComponent(searchQuery)}`);
+    const response = await axios.get(`https://www.bestbuy.com/site/searchpage.jsp?st=${encodeURIComponent(searchQuery)}`, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+      }
+    });
+    
     const $ = cheerio.load(response.data);
     const results: SearchResult[] = [];
 
@@ -68,9 +104,10 @@ export async function scrapeBestBuy(searchQuery: string): Promise<SearchResult[]
       const rating = extractRating($(element).find('.rating-reviews').text().trim());
       const reviews = parseInt($(element).find('.rating-reviews').text().trim(), 10) || 0;
       const imageUrl = $(element).find('img').attr('src');
+      const productUrl = 'https://bestbuy.com' + $(element).find('a').attr('href');
 
       if (title && price) {
-        results.push({
+        const result: SearchResult = {
           id: generateId(),
           title,
           description: title,
@@ -79,10 +116,14 @@ export async function scrapeBestBuy(searchQuery: string): Promise<SearchResult[]
           reviews: reviews || 100,
           price: extractPrice(price),
           website: 'Best Buy',
-          websiteUrl: 'https://bestbuy.com',
+          websiteUrl: productUrl,
           imageUrl: imageUrl || 'https://images.unsplash.com/photo-1557821552-17105176677c',
-          isBestChoice: false
-        });
+          bestPaymentMethod: 'Best Buy Credit Card - 5% back in rewards',
+          aiAnalysis: generateAIAnalysis(title, extractPrice(price), rating || 4.0, reviews || 100),
+          lastUpdated: format(new Date(), 'PPP')
+        };
+
+        results.push(result);
       }
     });
 

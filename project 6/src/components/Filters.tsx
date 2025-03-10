@@ -19,58 +19,54 @@ export function Filters({
   setSortBy
 }: FiltersProps) {
   const handleMinPriceChange = (value: string) => {
-    const newMin = Math.max(0, Math.min(Number(value), priceRange[1]));
+    const newMin = Math.min(Number(value), priceRange[1]);
     setPriceRange([newMin, priceRange[1]]);
   };
 
   const handleMaxPriceChange = (value: string) => {
-    const newMax = Math.max(priceRange[0], Number(value));
+    const newMax = Math.max(Number(value), priceRange[0]);
     setPriceRange([priceRange[0], newMax]);
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-5 space-y-5 border border-gray-200">
-      <div className="flex items-center gap-2 border-b pb-3">
-        <SlidersHorizontal size={22} className="text-blue-600" />
-        <h3 className="font-semibold text-lg">Filters</h3>
+    <div className="bg-white rounded-lg shadow-sm p-4 space-y-4">
+      <div className="flex items-center gap-2 border-b pb-2">
+        <SlidersHorizontal size={20} className="text-blue-600" />
+        <h3 className="font-semibold">Filters</h3>
       </div>
 
-      <div className="space-y-5">
-        {/* Price Range Filter */}
+      <div className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Price Range (USD)
+            Price Range
           </label>
-          <div className="flex gap-3 items-center">
-            <div className="relative flex-1">
-              <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
+          <div className="flex gap-2 items-center">
+            <div className="flex-1">
               <input
                 type="number"
                 min={0}
                 max={priceRange[1]}
                 value={priceRange[0]}
                 onChange={(e) => handleMinPriceChange(e.target.value)}
-                className="w-full pl-7 pr-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none"
-                placeholder="Min ($)"
+                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                placeholder="Min"
               />
             </div>
             <span className="text-gray-500">to</span>
-            <div className="relative flex-1">
-              <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
+            <div className="flex-1">
               <input
                 type="number"
                 min={priceRange[0]}
                 max={10000}
                 value={priceRange[1]}
                 onChange={(e) => handleMaxPriceChange(e.target.value)}
-                className="w-full pl-7 pr-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none"
-                placeholder="Max ($)"
+                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                placeholder="Max"
               />
             </div>
           </div>
         </div>
 
-        {/* Rating Filter */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Minimum Rating ({rating}★)
@@ -90,7 +86,6 @@ export function Filters({
           </div>
         </div>
 
-        {/* Sorting Filter */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Sort By
@@ -98,7 +93,7 @@ export function Filters({
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
-            className="w-full rounded-md border border-gray-300 py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="w-full rounded-md border border-gray-300 py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
           >
             <option value="relevance">Relevance</option>
             <option value="rating">Rating</option>

@@ -1,11 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search } from 'lucide-react';
 import { SearchBar } from './components/SearchBar';
 import { SearchResults } from './components/SearchResults';
 import { CategoryTabs } from './components/CategoryTabs';
 import { Filters } from './components/Filters';
+import { Chatbot } from './components/Chatbot';
+import { BestSellers } from './components/BestSellers';
+import { BusinessRegistration } from './components/BusinessRegistration';
 import { searchData, SearchResult } from './data/searchData';
 import { scrapeAllSources } from './utils/scraper';
+import { loadCSVData } from './utils/csvLoader';
 
 function App() {
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
@@ -15,6 +19,14 @@ function App() {
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 10000]);
   const [rating, setRating] = useState(4);
   const [sortBy, setSortBy] = useState('relevance');
+  const [csvProducts, setCsvProducts] = useState<SearchResult[]>([]);
+  const [currentBestChoice, setCurrentBestChoice] = useState<SearchResult>();
+
+  useEffect(() => {
+    loadCSVData().then(data => {
+      setCsvProducts(data);
+    });
+  }, []);
 
   const handleSearch = async (query: string) => {
     if (!query.trim()) {
@@ -25,17 +37,15 @@ function App() {
     setLoading(true);
 
     try {
-      // First, search local data
-      let results = searchData.filter((item) => {
+      // Search all data sources
+      let results = [...searchData, ...csvProducts].filter((item) => {
         const matchesQuery = 
           item.title.toLowerCase().includes(query.toLowerCase()) ||
           item.description.toLowerCase().includes(query.toLowerCase()) ||
-          item.category.toLowerCase().includes(query.toLowerCase()) ||
-          item.website.toLowerCase().includes(query.toLowerCase());
+          item.category.toLowerCase().includes(query.toLowerCase());
 
         const matchesCategory = 
           selectedCategory === 'All' || 
-          (selectedCategory === 'Shopping' && item.price) ||
           item.category.toLowerCase() === selectedCategory.toLowerCase();
 
         const matchesPrice = 
@@ -48,10 +58,8 @@ function App() {
         return matchesQuery && matchesCategory && matchesPrice && matchesRating;
       });
 
-      // Then, fetch additional data from web scraping
+      // Get scraped results
       const scrapedResults = await scrapeAllSources(query);
-      
-      // Combine local and scraped results
       results = [...results, ...scrapedResults];
 
       // Apply sorting
@@ -68,7 +76,7 @@ function App() {
           case 'reviews':
             return b.reviews - a.reviews;
           default:
-            return 0;
+            return (b.rating * Math.log10(b.reviews)) - (a.rating * Math.log10(a.reviews));
         }
       });
 
@@ -76,6 +84,7 @@ function App() {
       if (results.length > 0) {
         results.forEach(item => item.isBestChoice = false);
         results[0].isBestChoice = true;
+        setCurrentBestChoice(results[0]);
       }
 
       setSearchResults(results);
@@ -106,6 +115,12 @@ function App() {
             Search for products, services, restaurants, hotels, and more. 
             Get AI-powered recommendations and detailed analysis.
           </p>
+          <div className="mt-8">
+            <BusinessRegistration />
+          </div>
+          <div className="mt-12 w-full max-w-4xl">
+            <BestSellers products={[...searchData, ...csvProducts]} />
+          </div>
         </div>
       ) : (
         <div className="pt-6 px-4">
@@ -119,7 +134,7 @@ function App() {
           
           <div className="max-w-6xl mx-auto">
             <div className="flex gap-6">
-              <div className="w-64 flex-shrink-0">
+              <div className="w-64 flex-shrink-0 space-y-4">
                 <Filters
                   priceRange={priceRange}
                   setPriceRange={setPriceRange}
@@ -128,6 +143,7 @@ function App() {
                   sortBy={sortBy}
                   setSortBy={setSortBy}
                 />
+                <BusinessRegistration />
               </div>
               
               <div className="flex-1 space-y-6">
@@ -152,6 +168,8 @@ function App() {
           </div>
         </div>
       )}
+      
+      <Chatbot onCustomSearch={handleSearch} currentBestChoice={currentBestChoice} />
     </div>
   );
 }

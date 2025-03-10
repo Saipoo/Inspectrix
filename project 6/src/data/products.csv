@@ -1,0 +1,11 @@
+id,title,description,category,subcategory,rating,reviews,price,website,websiteUrl,imageUrl,isBestChoice
+ride1,"Uber Premium","Luxury ride service from SVCE to Bangalore","transportation","car",4.8,45678,$35.00,Uber,https://uber.com,https://images.unsplash.com/photo-1549317661-bd32c8ce0db2,true
+ride2,"Ola Prime","Comfortable ride service to Bangalore","transportation","car",4.7,34567,$32.00,Ola,https://olacabs.com,https://images.unsplash.com/photo-1549317661-bd32c8ce0db2,false
+ride3,"Rapido Bike","Quick bike taxi service","transportation","bike",4.6,23456,$15.00,Rapido,https://rapido.bike,https://images.unsplash.com/photo-1558981806-ec527fa84c39,false
+cloth1,"Nike Dri-FIT Running Shirt","Premium moisture-wicking running shirt","clothing","activewear",4.8,2345,$45.00,Nike,https://nike.com,https://images.unsplash.com/photo-1576566588028-4147f3842f27,true
+cloth2,"Lululemon Align Leggings","Buttery soft high-rise leggings","clothing","activewear",4.9,5678,$98.00,Lululemon,https://lululemon.com,https://images.unsplash.com/photo-1548663512-4a8a3864a20c,false
+cosmetic1,"MAC Ruby Woo Lipstick","Iconic matte red lipstick","cosmetics","makeup",4.7,8901,$19.00,MAC,https://maccosmetics.com,https://images.unsplash.com/photo-1586495777744-4413f21062fa,true
+food1,"Lay's Classic Chips","America's favorite potato chips","snacks","chips",4.5,23456,$4.99,Walmart,https://walmart.com,https://images.unsplash.com/photo-1566478989037-eec170784d0b,true
+wholesale1,"Costco Paper Towels","Premium bulk paper towels","wholesale","household",4.8,34567,$19.99,Costco,https://costco.com,https://images.unsplash.com/photo-1584556812952-905ffd0c611a,true
+local1,"Chennai Spice Market","Local spice and grocery store","small-business","grocery",4.6,456,$0.00,"Chennai Spice",https://chennaispice.com,https://images.unsplash.com/photo-1546868871-7041f2a55e12,true
+tech1,"Apple MacBook Pro","Latest M2 Pro chip laptop","electronics","computers",4.9,12345,$1999.00,Apple,https://apple.com,https://images.unsplash.com/photo-1517336714731-489689fd1ca8,true
